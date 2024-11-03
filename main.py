@@ -4,21 +4,23 @@ from convert_to_webp import convert_to_webp
 
 def main(page: ft.Page):
     page.title = "WebP変換ツール"
-    page.window.width = 800
-    page.window.height = 600
+    page.window.width = 600
+    page.window.height = 450
     page.theme = ft.Theme(color_scheme_seed="white")
 
     filepath_display = ft.Text("", visible=False)
     selected_image = ft.Image(
-        src="", height=300, fit=ft.ImageFit.SCALE_DOWN, visible=False
+        src="", fit=ft.ImageFit.SCALE_DOWN, visible=False
     )
     compression_message = ft.Text("", visible=False)
 
     def pick_files_result(e: ft.FilePickerResultEvent):
         if e.files:
-            filepath_display.value = e.files[0].path
+            filepath = e.files[0].path
+            parts = filepath.split(os.sep)
+            filepath_display.value = f"{parts[0]+os.sep+parts[1]+os.sep}...{os.sep+parts[-1]}" if len(parts) > 2 else filepath
             filepath_display.visible = True
-            selected_image.src = e.files[0].path
+            selected_image.src = filepath
             selected_image.visible = True
             convert_button.visible = True
             page.update()
@@ -35,9 +37,11 @@ def main(page: ft.Page):
     )
 
     def convert_button_clicked(e):
-        convert_to_webp(selected_image.src)
+        converted_image = convert_to_webp(selected_image.src)
         selected_image_size = os.path.getsize(selected_image.src)
-        compression_message.value = f"{selected_image_size}％削減されました"
+        convered_image_size = os.path.getsize(converted_image)
+        compression_rate = round((1 - convered_image_size / selected_image_size) * 100)
+        compression_message.value = f"{compression_rate}％削減されました"
         compression_message.visible = True
         page.update()
 
@@ -51,12 +55,23 @@ def main(page: ft.Page):
     page.add(
         ft.Column(
             [
-                ft.Text("WebPに変換する画像を選択"),
-                ft.Row([file_select_button, filepath_display]),
-                selected_image,
+                # ft.Text("WebPに変換する画像を選択"),
+                ft.Row(
+                    [file_select_button, filepath_display],
+
+                ),
+                ft.Container(
+                    content=selected_image,
+                    height=280,
+                    width=580,
+                    padding=10,
+                    border=ft.border.all(1),
+                ),
                 convert_button,
                 compression_message,
             ],
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
     )
 
