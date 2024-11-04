@@ -27,12 +27,7 @@ def main(page: ft.Page):
         convert_button.disabled = True
         progress_ring.visible = True
         page.update()
-        converted_image = convert_to_webp(selected_image.src)
-        selected_image_size = os.path.getsize(selected_image.src)
-        converted_image_size = os.path.getsize(converted_image)
-        compression_rate = round((1 - converted_image_size / selected_image_size) * 100)
-        compression_message.value = f"{compression_rate}％削減されました！"
-        compression_message.visible = True
+        convert_to_webp(selected_image.src)
         file_select_button.disabled = False
         convert_button.disabled = False
         progress_ring.visible = False
@@ -41,7 +36,6 @@ def main(page: ft.Page):
     # 各コントロール
     pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
     page.overlay.append(pick_files_dialog)
-    compression_message = ft.Text("", visible=False)
 
     file_select_button = ft.ElevatedButton(
         "ファイルを選択",
@@ -66,12 +60,9 @@ def main(page: ft.Page):
     page.add(
         ft.Column(
             [
-                ft.Row([
-                    ft.Row(
-                        [file_select_button, filepath_display],
-                    ),
-                    compression_message,
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                ft.Row(
+                    [file_select_button, filepath_display],
+                ),
                 ft.Container(
                     content=ft.Stack(
                         [selected_image, progress_ring], 
