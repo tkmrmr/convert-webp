@@ -7,6 +7,8 @@ def main(page: ft.Page):
     page.title = "WebP変換ツール"
     page.window.width = 600
     page.window.height = 450
+    page.window.maximizable = False
+    page.window.resizable = False
     page.theme = ft.Theme()
 
     def pick_files_result(e: ft.FilePickerResultEvent):
